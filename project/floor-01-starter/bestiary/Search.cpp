@@ -21,6 +21,8 @@
 //               the output for your lab-notes.md.
 
 #include "Search.h"
+#include <cassert>
+#include <algorithm> 
 
 namespace dungeon {
 
@@ -35,7 +37,10 @@ const Monster* linearSearch(const std::vector<Monster>& bestiary,
 }
 
 const Monster* binarySearch(const std::vector<Monster>& bestiary,
-                            const std::string&         name) {
+    const std::string& name) {
+	assert(std::bestiary.begin(), bestiary.end(), [](const Monster& a, const Monster& b) {
+		return a.name < b.name;
+		});
     // TODO Floor 1 (Wed): iterative binary search.
     //   PRECONDITION: bestiary is sorted ascending by name.
     //
@@ -55,13 +60,55 @@ const Monster* binarySearch(const std::vector<Monster>& bestiary,
     //   - Middle index: `(low + high) / 2` is textbook but can overflow for
     //     huge N. `low + (high - low) / 2` is the safe version. Write the
     //     safe one — it's free, and it's a habit worth building.
-    (void)bestiary;
-    (void)name;
+
+    // Where did you get size_t from? It's the type of `bestiary.size()`. If you use `int` instead, you may get signed/unsigned comparison warnings. If you use `int` for the index, you may get overflow on huge N. If you use `size_t` for the index, you may get underflow when subtracting 1 from 0. Pick one and stick with it.
+
+
+    std::size_t low = 0;
+    std::size_t high = bestiary.size();
+
+    // time to loop!
+    while (low < high) {
+        // while there's still one element in our window when low == high the window is empty
+
+        // 1. comput the middle
+        std::size_t mid = low + (high - low) / 2;
+        // if we have large size_t values...low + high could overflow before we divide
+
+        // 2. look at the element at mid
+        const std::string& here = bestiary[mid].name;
+
+        // 3. decision time...
+        if (here == name) return &bestiary[mid];
+        if (here < name) low = mid + 1;
+        else high = mid;
+        // where did here and name come from? here is the name of the monster at mid, name is the name we are looking for
+    }
     return nullptr;
 }
 
+namespace {
+    const Monster* binSearchRec(
+        const std::vector<Monster>& bestiary, const std::string& name, std::size_t low, std::size_t high) {
+        // base case first!
+        if (low >= high) return nullptr;
+        // recursive case!
+        std::size_t mid = low + (high - low) / 2;
+        const std::string& here = bestiary[mid].name;
+        if (here == name) return &bestiary[mid];
+        else if (here < name) {
+            return binSearchRec(bestiary, name, mid + 1, high);
+        }
+        else {
+            return binSearchRec(bestiary, name, low, mid);
+        }
+    }
+}
+
+
 const Monster* binarySearchRecursive(const std::vector<Monster>& bestiary,
                                      const std::string&         name) {
+    return binSearchRec(bestiary, name, 0, bestiary.size());
     // TODO Floor 1 (Fri): same contract as binarySearch, but recursive.
     //   Recommended pattern: write a `static` helper in this file with extra
     //   (low, high) parameters, and have this public function call it with
@@ -80,9 +127,6 @@ const Monster* binarySearchRecursive(const std::vector<Monster>& bestiary,
     //   - After it works: run `benchmark`. Does the recursive version cost
     //     more per call than the iterative one? A little? A lot? Why might
     //     that be? Write the answer in lab-notes.md.
-    (void)bestiary;
-    (void)name;
-    return nullptr;
 }
 
 const Monster* findMonster(const std::vector<Monster>& bestiary,
@@ -95,7 +139,7 @@ const Monster* findMonster(const std::vector<Monster>& bestiary,
     //   - At N=100,000, does it matter? By how much?
     //   - This is a JUDGMENT, not a fact. Whatever you pick, write WHY in
     //     your commit message. That reasoning is the graded artifact.
-    return linearSearch(bestiary, name);
+    return binarySearchRecursive(bestiary, name);
 }
 
 }
