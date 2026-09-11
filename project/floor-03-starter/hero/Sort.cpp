@@ -1,15 +1,14 @@
-// COMP 2450 — Floor 3 starter
-// hero/Sort.cpp — reference implementation from Floor 2.
-//
-// This file IS already done. You wrote it last week (or something like it);
-// the starter ships the reference version so `sort inventory by …` still
-// works while you focus on templates and exceptions this week. Read it
-// as a worked example — every choice below is defensible, and the
-// comments say WHY.
+// COMP 2450 — Warden of the Foundations starter (post-Floor-3 reference state)
+// hero/Sort.cpp — reference implementation from Floor 2, retargeted at
+// Bag<Item>. The bodies are nearly identical to the std::vector
+// versions — Bag<T> exposes operator[] and begin/end, which is all
+// these routines depend on.
 
 #include "Sort.h"
+
 #include <algorithm>
 #include <sstream>
+#include <vector>
 
 namespace dungeon {
 
@@ -19,15 +18,16 @@ namespace dungeon {
 // line is the merge tie-break: on equal elements we take from the LEFT
 // half first, which is why Iron key (weight 0.1, listed first) stays
 // ahead of Loaf of bread (weight 0.1, listed second) after a `sort by
-// weight`. Lose that and you lose stability.
+// weight`.
 
 namespace {
 
-void merge(std::vector<Item>& v,
+void merge(Bag<Item>& v,
            std::size_t lo, std::size_t mid, std::size_t hi,
            const Comparator& cmp) {
-    // Copy both halves out. Merging in place is possible but much slower;
-    // the scratch buffer IS the algorithm.
+    // Copy both halves out into scratch vectors. Bag<Item>::begin/end
+    // return std::vector<Item>::iterator, so the std::vector range
+    // constructor accepts them directly — no conversion step needed.
     std::vector<Item> left (v.begin() + lo,  v.begin() + mid);
     std::vector<Item> right(v.begin() + mid, v.begin() + hi);
 
@@ -35,9 +35,7 @@ void merge(std::vector<Item>& v,
     while (i < left.size() && j < right.size()) {
         // Stability is hiding in THIS condition. `!cmp(right[j], left[i])`
         // evaluates to "right[j] is not strictly less than left[i]" — so
-        // on a tie, we take from left first. If you wrote
-        // `cmp(left[i], right[j])` instead, equal elements from the
-        // right half would sneak ahead. Same Big-O, broken stability.
+        // on a tie, we take from left first.
         if (!cmp(right[j], left[i])) {
             v[k++] = left[i++];
         } else {
@@ -48,7 +46,7 @@ void merge(std::vector<Item>& v,
     while (j < right.size()) v[k++] = right[j++];
 }
 
-void mergeSortImpl(std::vector<Item>& v,
+void mergeSortImpl(Bag<Item>& v,
                    std::size_t lo, std::size_t hi,
                    const Comparator& cmp) {
     // Base case for the half-open [lo, hi) form: zero or one element.
@@ -61,7 +59,7 @@ void mergeSortImpl(std::vector<Item>& v,
 
 }  // anonymous namespace
 
-void mergeSort(std::vector<Item>& inventory, const Comparator& cmp) {
+void mergeSort(Bag<Item>& inventory, const Comparator& cmp) {
     mergeSortImpl(inventory, 0, inventory.size(), cmp);
 }
 
@@ -75,7 +73,7 @@ void mergeSort(std::vector<Item>& inventory, const Comparator& cmp) {
 
 namespace {
 
-std::size_t partition(std::vector<Item>& v,
+std::size_t partition(Bag<Item>& v,
                       std::size_t lo, std::size_t hi,
                       const Comparator& cmp) {
     // Pick the MIDDLE element as pivot (the defense against sorted
@@ -96,32 +94,24 @@ std::size_t partition(std::vector<Item>& v,
     return store;
 }
 
-void quicksortImpl(std::vector<Item>& v,
+void quicksortImpl(Bag<Item>& v,
                    std::size_t lo, std::size_t hi,
                    const Comparator& cmp) {
     if (lo >= hi) return;
     std::size_t p = partition(v, lo, hi, cmp);
-    // `p - 1` with std::size_t underflows when p == 0 — 18 quintillion
-    // and counting. Guard it.
+    // `p - 1` with std::size_t underflows when p == 0. Guard it.
     if (p > lo) quicksortImpl(v, lo, p - 1, cmp);
     quicksortImpl(v, p + 1, hi, cmp);
 }
 
 }  // anonymous namespace
 
-void quicksort(std::vector<Item>& inventory, const Comparator& cmp) {
+void quicksort(Bag<Item>& inventory, const Comparator& cmp) {
     if (inventory.size() < 2) return;
     quicksortImpl(inventory, 0, inventory.size() - 1, cmp);
 }
 
 // ---- 3. sortInventory (the seam) ---------------------------------------
-//
-// Parse the "weight desc" / "name" / "value asc" string the user typed,
-// build the right comparator, dispatch to one sort. std::sort is the
-// production pick — smaller constants, cache-aware, introsort fallback.
-// Your two hand-rolled sorts exist to TEACH the shape; std::sort exists
-// to SHIP. The whole game calls only through this function, so if you
-// ever want to change the pick, one line here flips it.
 
 bool sortInventory(Hero& hero, const std::string& criterion) {
     std::istringstream in(criterion);
@@ -134,9 +124,6 @@ bool sortInventory(Hero& hero, const std::string& criterion) {
     else if (key == "value")  asc = [](const Item& a, const Item& b){ return a.value  < b.value;  };
     else return false;
 
-    // A descending comparator is an ascending one with the arguments
-    // swapped. Two-line lambda. No need for a second family of
-    // comparators.
     Comparator cmp = asc;
     if (dir == "desc") {
         cmp = [asc](const Item& a, const Item& b) { return asc(b, a); };

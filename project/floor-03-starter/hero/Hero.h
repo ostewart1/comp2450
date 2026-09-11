@@ -1,35 +1,43 @@
-// COMP 2450 — Floor 3 starter
-// hero/Hero.h — you edit this ONCE, on Wednesday.
+// COMP 2450 — Floor 4 starter (post-Warden reference state + this week's stubs)
+// hero/Hero.h — Floor 4 grows the hero by one field: a Chain<std::string>
+// event log. Every notable thing the hero does or suffers is prepended
+// to the chain in main.cpp; the `log` command displays the most recent N
+// entries by walking the chain head-first.
 //
-// Right now `inventory` is a std::vector<Item> — the Floor 2 baseline,
-// which compiles and runs as-is. On WEDNESDAY, after you build Bag<T>,
-// you flip the one token `std::vector<Item>` to `Bag<Item>` (and
-// loadInventory's return type with it). The Hero struct doesn't care
-// what container holds its loot — that's the whole point of the flip.
-//
-// This is the hero the rest of the game will grow around. Later floors
-// will bolt on more: spell book (Floor 6, stack), action queue
-// (Floor 7, queue), skill tree (Floor 8).
+// Note that Hero now owns a Chain, which (by Friday) will have its copy
+// operations deleted. You should be passing Hero by reference everywhere
+// already; if you weren't, today's the day.
+
 #pragma once
+
 #include <string>
-#include <vector>
+
+#include "Bag.h"
 #include "Item.h"
 
 namespace dungeon {
 
 struct Hero {
-    std::string       heroName;
-    std::vector<Item> inventory;
+    std::string         heroName;
+    Bag<Item>           inventory;   // Floor 3: Bag<Item> (sortable, indexable).
 };
 
 // Load a starting inventory from a pipe-delimited text file.
 // File format, one per line:  name|weight|value
 // Blank lines and lines starting with '#' are ignored.
-// On read failure returns an empty vector.
-std::vector<Item> loadInventory(const std::string& path);
+// On read failure returns an empty Bag.
+Bag<Item> loadInventory(const std::string& path);
 
 // Pretty-print the hero's inventory, numbered, to stdout.
-// Matches the demo target on the Floor 2 student page.
 void printInventory(const Hero& hero);
 
-}
+// Print the most recent `n` entries of the hero's event log, newest first.
+// If `n` is 0 or larger than the chain, prints the whole chain.
+//
+// TODO Floor 4 (Monday) — implement in Hero.cpp. Walk the chain from
+// hero.eventLog.head() forward, printing as you go, and stop after n
+// entries. Print "(newest first; chain length K)" at the end where
+// K = eventLog.size().
+void printLog(const Hero& hero, std::size_t n);
+
+}  // namespace dungeon

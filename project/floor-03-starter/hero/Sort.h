@@ -1,14 +1,15 @@
-// COMP 2450 — Floor 2 starter
-// hero/Sort.h — interface only. Provided by the framework.
-//
-// You implement Sort.cpp this week. The rest of the game calls only
-// through these three functions; if your code is correct, the
-// `sort inventory by <key>` command works AND the `benchmark sort`
-// command produces meaningful numbers.
+// COMP 2450 — Warden of the Foundations starter (post-Floor-3 reference state)
+// hero/Sort.h — post-Floor-3 reference. mergeSort and quicksort now
+// operate directly on Bag<Item>, the container template Floor 3
+// introduced. Bag<T>'s begin/end forward to the underlying std::vector's
+// iterators, so std::sort still works the same way through the Bag.
+
 #pragma once
+
 #include <functional>
 #include <string>
-#include <vector>
+
+#include "Bag.h"
 #include "Hero.h"
 #include "Item.h"
 
@@ -20,7 +21,7 @@ namespace dungeon {
 // accept the exact same lambdas that std::sort does. That's the whole
 // point of taking a comparator: one sort routine, every ordering.
 //
-// (We use std::function here because templates don't land until
+// (We use std::function here because templates didn't land until
 // Floor 3. The production version — what std::sort uses — is a
 // template. Same idea, lower overhead.)
 using Comparator = std::function<bool(const Item&, const Item&)>;
@@ -30,7 +31,7 @@ using Comparator = std::function<bool(const Item&, const Item&)>;
 //   Side effect: sorts `inventory` in place.
 //   Pre:         none.
 //   Big-O:       O(n log n) best / average / worst.
-void mergeSort(std::vector<Item>& inventory, const Comparator& cmp);
+void mergeSort(Bag<Item>& inventory, const Comparator& cmp);
 
 // Quicksort: in-place, O(n log n) average, but O(n^2) worst case.
 //   Side effect: sorts `inventory` in place.
@@ -39,7 +40,7 @@ void mergeSort(std::vector<Item>& inventory, const Comparator& cmp);
 //   Use the MIDDLE element as the pivot. (A first- or last-element
 //   pivot hits O(n^2) on already-sorted data — you will meet the
 //   Pivot Wraith.)
-void quicksort(std::vector<Item>& inventory, const Comparator& cmp);
+void quicksort(Bag<Item>& inventory, const Comparator& cmp);
 
 
 // The function the rest of the game calls when it needs to sort the
@@ -56,4 +57,4 @@ void quicksort(std::vector<Item>& inventory, const Comparator& cmp);
 // print a helpful error).
 bool sortInventory(Hero& hero, const std::string& criterion);
 
-}
+}  // namespace dungeon

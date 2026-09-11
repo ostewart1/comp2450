@@ -1,14 +1,10 @@
-// COMP 2450 — Floor 2 starter
-// hero/Hero.cpp — provided by the framework. Do not edit.
-//
-// Two framework services: load the starter inventory from disk, and
-// pretty-print the hero's current inventory. This mirrors Bestiary.cpp
-// by design — once you've read one, you've read the other. The point
-// is that EVERY on-disk collection in this project uses the same
-// "pipe-delimited, one record per line, # for comments" format, so
-// adding new data types later is cheap.
+// COMP 2450 — Floor 4 starter
+// hero/Hero.cpp — Floor 4 adds printLog() (the new `log` command's
+// renderer). The inventory and bestiary loaders are untouched from the
+// post-Warden reference state.
 
 #include "Hero.h"
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -18,8 +14,8 @@ namespace dungeon {
 
 // Read the starter inventory. Same shape as Bestiary's loader; skip
 // blank/commented lines, abandon any malformed row rather than abort.
-std::vector<Item> loadInventory(const std::string& path) {
-    std::vector<Item> result;
+Bag<Item> loadInventory(const std::string& path) {
+    Bag<Item> result;
     std::ifstream in(path);
     if (!in) {
         std::cerr << "Your satchel is missing: " << path << "\n";
@@ -59,12 +55,36 @@ void printInventory(const Hero& hero) {
                   << std::setw(18) << std::left << it.name
                   << "(wt " << std::fixed << std::setprecision(1) << it.weight
                   << ", val " << it.value << ")\n";
-        // std::cout is a GLOBAL object. If we left `std::fixed` and
-        // `std::left` set, they'd leak into the NEXT thing anyone prints.
-        // Always unset formatting flags you set inside a local function.
         std::cout.unsetf(std::ios::fixed);
         std::cout.unsetf(std::ios::left);
     }
+}
+
+// Render the most recent `n` event-log entries, newest first. If n is 0
+// or larger than the chain length, prints the whole chain.
+//
+// TODO Floor 4 (Monday) — replace the body with a hand-walk of the chain:
+//
+//     std::size_t printed = 0;
+//     for (const auto* p = hero.eventLog.head();
+//          p != nullptr && (n == 0 || printed < n);
+//          p = p->next, ++printed) {
+//         std::cout << "  " << std::setw(2) << std::right
+//                   << (printed + 1) << ".  " << p->data << "\n";
+//     }
+//     std::cout << "  (newest first; chain length "
+//               << hero.eventLog.size() << ")\n";
+//
+// The starter body below prints a placeholder so the build is green
+// and `log` doesn't crash on day zero. Replace it.
+void printLog(const Hero& hero, std::size_t n) {
+    (void)n;
+    if (hero.inventory.empty()) {
+        std::cout << "  (the chain is empty — nothing to remember yet)\n";
+        return;
+    }
+    std::cout << "  (printLog not yet implemented — see hero/Hero.cpp)\n"
+              << "  (chain length " << hero.inventory.size() << ")\n";
 }
 
 }  // namespace dungeon
