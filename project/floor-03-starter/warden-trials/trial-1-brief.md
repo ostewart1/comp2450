@@ -13,10 +13,6 @@ AI is welcome to *check* your answers; it is not welcome to *write your sentence
 > Your battle's "Use item" menu shows the *currently usable* items in your hero's inventory on this turn. Name the right ADT for that menu. Defend the choice against its closest neighbour (e.g., why `bag` instead of `set`, or `list` instead of `bag`).
 
 (your answer — 50–100 words) 
-// ADT: I would use a list so the actions could be stored in an unspecified order. For example, a set stores unique elements, but does not allow duplicates, 
-// which is not what we want for a bag of items. A list allows for duplicates and can be traversed in order, which is useful for displaying the items to the player. 
-// A set would not be appropriate because it does not maintain order and does not allow duplicates, which could lead to confusion when displaying the items in the menu.
-
 
 ---
 
@@ -25,12 +21,6 @@ AI is welcome to *check* your answers; it is not welcome to *write your sentence
 > Your inventory is kept sorted by healing power (in this codebase an item's `value` measures its potency, so `value` plays the healing-power role). The player types `use Healing potion`. Linear or binary search to find it by name? Justify, and give the Big-O for each.
 
 (your answer — 50–100 words)
-// Linear or binary search to find it by name? Justify, and give the Big-O for each: 
-// I would use linear search because we are searching by name, and the collection is sorted by value, not name. 
-// Linear search can be used on unsorted data, while binary search requires sorted data. 
-// Since the items are sorted by healing power (value), we cannot use binary search to find an item by name. 
-// Therefore, linear search is the best option for searching by name in this case.
-// Big-O: O(n) for linear because we have to check each element and O(log n) for binary if it was sorted by name
 
 ---
 
@@ -50,7 +40,6 @@ auto byWeight = /* your lambda */;
 
 (one-sentence answer — what language feature?)
 
-
 ---
 
 ## 4. Floor 3 — templates & exceptions
@@ -58,7 +47,3 @@ auto byWeight = /* your lambda */;
 > Why does `Bag<T>` live in `Bag.h` instead of `Bag.cpp`? And: when the player types `9` for a 4-option menu, where in your code should the validation **throw**, and where should it **catch**?
 
 (your answer — 50–100 words)
-
-// Bag<T> lives in Bag.h instead of Bag.cpp because it is a template and needs to be declared there. 
-// Bag.cpp implements the functions declared in Bag.h
-// If a user enters 9, the code should throw when the input is greater than the range and catch it immediately after the throw so it can fix it

@@ -9,6 +9,9 @@
 #include <vector>
 #include "Monster.h"
 
+// Linear or binary search to find it by name? Justify, and give the Big-O for each: 
+// I would use linear search because you're searching by value, not by name
+// Big-O: O(n) for linear and O(log n) for binary if it was sorted by name, but you can't use it because it's not sorted by name...
 namespace dungeon {
 
 // Linear scan over the bestiary.

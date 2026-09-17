@@ -12,16 +12,16 @@ Open Claude (or your LLM of choice) and paste **this exact prompt**:
 
 > *Write a C++ function template that returns the largest element of a `std::vector<T>`. Handle the case where the vector is empty. Briefly explain your design choices.*
 
-Tell us which tool you used and the date: ChatGPT, 2026-09-17
+Tell us which tool you used and the date: ChatGPT, 2026-09-16
 
-
+- **Tool:** (e.g., Claude / ChatGPT / Copilot Chat / …)
+- **Date of the conversation:** YYYY-MM-DD
 
 ---
 
 ## The LLM's reply
 
 Paste the **full reply**, code and prose. Use a fenced code block for the code. Do not edit the reply — we want to see what you actually got.
-
 
 ```cpp
 #include <vector>
@@ -67,5 +67,3 @@ Address each of these:
 - **One concrete improvement.** Name one specific change you would make before merging this into a real project. Not "make it better" — a concrete code change.
 
 (your critique — at least 150 words)
-
-I tried to compile the code and it actually ran. It prompted me to battle the warden, so I did, but after that, it did not prompt me to do anything else.

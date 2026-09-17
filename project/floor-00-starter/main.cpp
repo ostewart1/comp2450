@@ -4,6 +4,8 @@
 // You will grow this program every week. Today it does almost nothing.
 // Your only job: make it compile, make it run, and change one line.
 
+// ADT: I would use a list so the actions could be stored in an unspecified order
+
 #include <iostream>
 #include <string>
 

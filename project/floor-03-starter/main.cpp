@@ -1,26 +1,3 @@
-// COMP 2450 — The Descent
-// Floor 3: The Forgemaster's Vault
-//
-// You descend from the Sorting Crucible into a vaulted stone chamber —
-// the Forgemaster's Vault — where empty molds stand on cold racks.
-// Every command you unlocked on Floors 1 and 2 still works: search, list,
-// inventory, sort, benchmark. This week you add THREE things:
-//
-//   (Mon) a FUNCTION template — findByName<T> — that replaces
-//         Floor 1's monster-specific linearSearch with one source body
-//         that works on Items too.
-//   (Wed) a CLASS template — Bag<T> — that replaces std::vector as the
-//         storage behind BOTH hero.inventory AND the keep's bestiary.
-//         One class, two instantiations.
-//   (Fri) USER-DEFINED EXCEPTIONS — BagException, a safer at() method
-//         on Bag, and a try/catch around this main loop so the game
-//         keeps running when a caller asks for an index that isn't
-//         there.
-//
-// Read this file. On MON and WED you do not need to edit it — your
-// work lives in Search.h and Bag.h. On FRIDAY you add one small piece
-// here: a try/catch around the command dispatch. There is a TODO marker
-// where it goes.
 
 #include <iostream>
 #include <sstream>
@@ -33,6 +10,8 @@
 #include "hero/Hero.h"
 #include "hero/Sort.h"
 
+// Bag<T> lives in Bag.h instead of Bag.cpp because it is a template and needs to be declared. Bag.cpp implements the functions declared in Bag.h
+// If a user enters 9, the code should throw when the input is greater than the range and catch immediately after the throw so it can fix it
 using namespace dungeon;
 
 namespace {
@@ -232,7 +211,7 @@ int main() {
         }
     }
 	catch (const std::exception& e) {
-		std::cout << "No such item. (" << e.what() << ")\n";
+        std::cout << "No such item. (" << e.what() << ")\n";
 	}
 	}
 

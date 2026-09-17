@@ -96,7 +96,7 @@ public:
     // (clear() does the same job — implement it below and call it from
     // the destructor body if you prefer one source of truth.)
     ~Chain() {
-        // TODO Floor 4 (Wednesday)
+        clear();
     }
 
     // -----------------------------------------------------------------
@@ -138,8 +138,8 @@ public:
     // this week.
     //
     // TODO Floor 4 (Monday) — return head_.
-    const Node* head() const { return nullptr; /* TODO Monday */ }
-    Node*       head()       { return nullptr; /* TODO Monday */ }
+    const Node* head() const { return head_ };
+    Node* head() { return head_; }
 
     // -----------------------------------------------------------------
     // Mutation
@@ -153,14 +153,26 @@ public:
     //     head_   = n;
     //     ++size_;
     void push_front(const T& /*value*/) {
-        // TODO Monday
+        // splicing
+        Node* n = new Node(value, head_);
+        // the chain's head points points at our new node
+        head_ = n;
+        // bump chain size 
+        ++size_;
     }
 
     // Walk and delete every node. Leaves the chain empty.
     //
     // TODO Floor 4 (Wednesday). Same loop as the destructor.
     void clear() {
-        // TODO Wednesday
+        Node* p = head_; // start at the head
+        while (p != nullptr) {
+            Note* n = p->next;
+            delete p;
+            p = n;
+        }
+        head_ = nullptr;
+        size_ = 0;
     }
 
 private:
