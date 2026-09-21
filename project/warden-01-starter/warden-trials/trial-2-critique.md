@@ -12,7 +12,7 @@ Open Claude (or your LLM of choice) and paste **this exact prompt**:
 
 > *Write a C++ function template that returns the largest element of a `std::vector<T>`. Handle the case where the vector is empty. Briefly explain your design choices.*
 
-Tell us which tool you used and the date: ChatGPT, 2026-09-17
+Tell us which tool you used and the date: ChatGPT, 2026-09-16
 
 
 
