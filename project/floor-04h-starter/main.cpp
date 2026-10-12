@@ -1,32 +1,3 @@
-// COMP 2450 — The Descent
-// Floor 4½ — The Chain Vault, Deeper — starter
-//
-// This is the post-Floor-4 reference codebase plus this week's Floor-4½
-// stubs. Everything Floors 0–4 delivered is in place: Bag<T>,
-// BagException + at(), findByName<T>, mergeSort, quicksort, std::sort,
-// the boss battle, Chain<T> (singly-linked, with a working destructor
-// and clear, and `= delete`d copies — see hero/Chain.h for the upgrades
-// you'll make this week).
-//
-// What is NEW for Floor 4½:
-//   * hero/Chain.h        — Node has a `prev` field; Chain has a `tail_`
-//                           field. Most methods are still the Floor 4
-//                           ones; push_back, pop_front/back, tail(),
-//                           and the deep copy operations are TODOs.
-//   * hero/Hero.h/.cpp    — new printLogOldest() that walks the chain
-//                           backward from tail() (Monday's job).
-//   * `log [n]`           — unchanged: most recent, newest first.
-//   * `log --oldest [n]`  — NEW: oldest n entries, oldest first.
-//   * `clone hero`        — NEW: copy-constructs a Hero inside a local
-//                           scope, prints both logs, then lets the copy
-//                           die. Demonstrates whether your deep copy
-//                           ctor and copy assignment work.
-//   * `selftest chain`    — extended with a Phase 2 deep-copy check.
-//
-// What you do this week (see the Floor 4½ page):
-//   Mon — prev / tail_ wiring, push_back, tail(), printLogOldest.
-//   Wed — deep copy ctor in Chain.h.
-//   Fri — copy assignment, pop_front, pop_back.
 
 #include <iostream>
 #include <sstream>

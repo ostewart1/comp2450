@@ -1,38 +1,3 @@
-// COMP 2450 — Floor 4½ starter
-// hero/Chain.h — doubly-linked container template. THE WORK IS HERE.
-//
-// You arrive on Floor 4½ with a working singly-linked Chain<T> from
-// Floor 4 — push_front, size, head, the destructor, clear, and copy
-// operations that were `= delete`. All of that is preserved below.
-//
-// This week's three-day arc:
-//   Monday    — add `prev` to Node and `tail_` to Chain, then implement
-//               tail() and push_back. Rewire push_front to maintain the
-//               new pointers.
-//   Wednesday — implement the deep copy ctor (replace the old
-//               `= delete`). Verify with `selftest chain`.
-//   Friday    — implement copy assignment (copy-and-swap or explicit),
-//               plus pop_front and pop_back. Final `selftest chain`.
-//
-// The big lesson is the Rule of Three:
-//   Floor 4 wrote the destructor and deleted the copies.
-//   Floor 4½ writes the copies properly.
-// By the end of this week, `Chain<T>` is a full-fledged owning container.
-//
-// Why bother with `prev`?  Two reasons:
-//   1. You can walk the chain backward — tail → head — without rebuilding
-//      it. The `log --oldest` command does exactly that.
-//   2. `push_back`, `pop_back`, and `pop_front` all become O(1). Without
-//      `prev`, even with a `tail_` pointer, pop_back is O(n) — to delete
-//      the tail you must find the *new* tail, which is the second-to-last
-//      node, and a singly-linked chain has no cheap way to reach it.
-//
-// The invariants you must maintain on every mutation:
-//   * empty chain:  head_ == nullptr  AND  tail_ == nullptr  AND  size_ == 0
-//   * non-empty:    head_->prev == nullptr  AND  tail_->next == nullptr
-//   * size_ matches the actual node count
-// Break any of these and `log --oldest`, `clone hero`, or `selftest chain`
-// will tell you about it loudly.
 
 #pragma once
 
@@ -121,8 +86,10 @@ public:
     //
     // Leaving this empty means a copy of a chain is silently empty.
     // The `clone hero` command will demonstrate the bug.
-    Chain(const Chain& /*other*/) {
-        // TODO Wednesday — deep copy.
+    Chain(const Chain& other) {
+        for (const Node* p = other.head_; p != nullptr; p = p->next) {
+            push_back(p->data);
+        }
     }
 
     // TODO Floor 4½ (Friday) — implement copy assignment.
@@ -150,8 +117,9 @@ public:
     //       More code, but no surprise about why it works.
     //
     // Pick one. Defend it in your lab notes.
-    Chain& operator=(const Chain& /*other*/) {
-        // TODO Friday — copy assignment.
+    Chain& operator=(const Chain& other) {
+        Chain tmp(other); //deep-copy other
+        swap(tmp); // trade our "guts" with this fresh copy
         return *this;
     }
 
@@ -174,8 +142,8 @@ public:
 
     // TODO Floor 4½ (Monday) — return tail_.
     // Used by `log --oldest`, which walks the chain backward via prev.
-    const Node* tail() const { return nullptr; /* TODO Monday */ }
-    Node*       tail()       { return nullptr; /* TODO Monday */ }
+    const Node* tail() const { return tail_; }
+    Node* tail() { return tail_; }
 
     // -----------------------------------------------------------------
     // Mutation — Floor 4's push_front kept, with a Floor 4½ extension.
@@ -198,7 +166,8 @@ public:
     // -----------------------------------------------------------------
     void push_front(const T& value) {
         Node* n = new Node(value, nullptr, head_);
-        // TODO Monday — wire prev/tail consistency (see comment above).
+        if (head_ != nullptr) head_->prev = n; // old head links back
+        else tail_ = n; // was empty: n is also the tail
         head_ = n;
         ++size_;
     }
@@ -211,8 +180,12 @@ public:
     //     else                  head_ = n;
     //     tail_ = n;
     //     ++size_;
-    void push_back(const T& /*value*/) {
-        // TODO Monday
+    void push_back(const T& value) {
+        Node* n = new Node(value, tail_, nullptr);
+        if (tail_ != nullptr) tail_->next = n;
+        else head_ = n;
+        tail_ = n;
+        ++size_;
     }
 
     // TODO Floor 4½ (Friday) — remove the front node. O(1).
@@ -225,7 +198,15 @@ public:
     //      If it IS null, the chain is now empty — set tail_ = nullptr too.
     //   5. --size_.
     void pop_front() {
-        // TODO Friday
+        if (head_ == nullptr) return; //empty
+        Node* old_head = head_;
+        Node* new_head = old_head->next;
+        delete old_head;
+        head_ = new_head;
+        // new head has nothing before it
+        if (new_head != nullptr) new_head->prev = nullptr;
+        else tail_ = nullptr; // chain is now empty
+        --size_; // decrement size
     }
 
     // TODO Floor 4½ (Friday) — remove the back node. O(1) BECAUSE of prev.
@@ -239,17 +220,18 @@ public:
     //   5. --size_.
     //
     // Question for the lab: why is this O(n) on a singly-linked chain
-    // *even if it has a tail_ pointer*?
+    // *even if it has a tail_ pointer*? Because you can't access the node before it 
     void pop_back() {
-        // TODO Friday
+        if (tail_ == nullptr) return;
+        Node* old_tail = tail_;
+        Node* new_tail = old_tail->prev;
+        delete old_tail;
+        tail_ = new_tail;
+        if (new_tail != nullptr) new_tail->next = nullptr;
+        else head_ = nullptr;
+        --size_;
     }
 
-    // Walk and delete every node. Floor 4 version — unchanged loop body,
-    // with `tail_` zeroed at the end to keep both endpoints consistent.
-    //
-    // Note: at the end we zero BOTH endpoint pointers. Forgetting tail_
-    // here is a subtle bug — the chain would *look* empty (size_ == 0,
-    // head_ == nullptr) but tail_ would dangle at a freed address.
     void clear() {
         Node* p = head_;
         while (p != nullptr) {

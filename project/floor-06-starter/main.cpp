@@ -1,44 +1,3 @@
-// COMP 2450 — The Descent
-// Floor 6 — The Hall of Echoes — starter
-//
-// This is the post-Floor-5 reference codebase plus this week's Floor-6
-// stubs. Everything Floors 0–5 delivered is in place: Bag<T>,
-// BagException + at(), findByName<T>, mergeSort, quicksort, std::sort,
-// the boss battle, doubly-linked Chain<T> with the full Rule of Three,
-// working iterator + const_iterator, std::find_if-based search across
-// bestiary, inventory, AND event log.
-//
-// What is NEW for Floor 6:
-//   * hero/Stack.h       — Stack<T>, a LIFO adapter over Chain<T>.
-//                          Four one-line bodies you write (push, pop,
-//                          size, empty); top() ships written.
-//   * hero/UndoAction.h  — what gets pushed on hero.undoStack: a
-//                          description + a snapshot of hero.inventory.
-//   * hero/Lint.h/.cpp   — bool isBalanced(const std::string&) over
-//                          Stack<char>. Body is Wednesday's TODO.
-//   * hero/StackTests.*  — `selftest stack` exercises Stack<int>'s
-//                          push/pop/top/size/empty in five phases.
-//   * `take <name>`      — adds a synthesized Item to inventory. The
-//                          mutating commands snapshot hero.inventory
-//                          and push onto hero.undoStack BEFORE doing
-//                          their work. Pre-wired here.
-//   * `undo`             — pops the top action and restores its
-//                          inventory snapshot. Dispatcher body is
-//                          Friday's TODO; placeholder works as a no-op
-//                          until Friday.
-//   * `lint <text>`      — calls isBalanced(text); prints balanced/
-//                          not balanced. Wired here; starts working
-//                          once you implement isBalanced.
-//   * `selftest stack`   — runs StackTests.
-//
-// What you do this week (see the Floor 6 page):
-//   Mon — Stack<T>'s four stubbed bodies (top() is provided);
-//         `selftest stack` passes.
-//   Wed — isBalanced in Lint.cpp; `lint <text>` returns real answers.
-//   Fri — the `undo` dispatcher body in this file; `undo` reverses
-//         the most recent mutating command. Also: live-rewrite the
-//         recursive binarySearchRecursive into an iterative version
-//         using an explicit Stack<Range>. (Demo, no checked-in code.)
 
 #include <algorithm>
 #include <iostream>
@@ -105,8 +64,60 @@ void recordUndo(Hero& hero, const std::string& description) {
 }
 
 }  // anonymous namespace
+int binSearchRec(const std::vector<int>& v, int target, int lo, int hi) {
+    if (lo >= hi) return -1;
+    int mid = lo + (hi - lo) / 2;
+    if (v[mid] == target) return mid;
+    if (v[mid] < target) return binSearchRec(v, target, mid + 1, hi);
+    return binSearchRec(v, target, lo, mid);
+}
+struct Range { int lo, hi; };
+int binSearchStack(const std::vector<int>& v, int target) {
+    Stack<Range> ranges;
+
+    Range start{0, (int)v.size()};
+    ranges.push(start);
+
+    while (!ranges.empty()) {
+        Range r = ranges.top();
+        ranges.pop();
+
+        int lo = r.lo;
+        int hi = r.hi;
+
+        if (lo >= hi) {
+            continue;
+        }
+
+        int mid = lo + (hi - lo) / 2;
+
+        if (v[mid] == target) {
+            return mid;
+        }
+
+        if (v[mid] < target) {
+            Range next{mid + 1, hi};
+            ranges.push(next);
+        }
+        else {
+            Range next{lo, mid};
+            ranges.push(next);
+        }
+    }
+
+    return -1;
+}
 
 int main() {
+    {
+        std::vector<int> v = { 2, 5, 8, 13, 21, 34, 55 };
+
+        for (int t : {2, 13, 55, 4, 99}) {
+            std::cout << t << ": recursive=" << binSearchRec(v, t, 0, (int)v.size())
+                << "  stack=" << binSearchStack(v, t) << "\n";
+        }
+    }
+
     std::cout << "\n=== THE HALL OF ECHOES ===\n\n";
 
     std::cout << "What is your name, adventurer? ";
@@ -250,36 +261,20 @@ int main() {
                 hero.eventLog.push_front("sort inventory by " + criterion);
             }
             else if (cmd == "undo") {
-                // TODO Floor 6 (Friday) — the undo dispatcher.
-                //
-                // The body is short. In English:
-                //   1. If hero.undoStack is empty, print "Nothing to undo."
-                //      and return — there is no prior action to reverse.
-                //   2. Otherwise:
-                //        a. Read the top action with hero.undoStack.top().
-                //        b. Copy its inventorySnapshot back over
-                //           hero.inventory (Bag<T> assignment does the work).
-                //        c. Pop the action off the stack.
-                //        d. Print "Undid: " followed by the description.
-                //        e. Append a "undo (...)" entry to hero.eventLog
-                //           so the event log reflects the reversal too.
-                //
-                // Reference body (do NOT paste — type it from memory in
-                // class once your Stack is working):
-                //
-                //     if (hero.undoStack.empty()) {
-                //         std::cout << "Nothing to undo.\n";
-                //     } else {
-                //         const UndoAction& a = hero.undoStack.top();
-                //         hero.inventory = a.inventorySnapshot;
-                //         std::cout << "Undid: " << a.description << "\n";
-                //         hero.eventLog.push_front("undo (" + a.description + ")");
-                //         hero.undoStack.pop();
-                //     }
-                //
-                // The order matters: bind the reference BEFORE pop().
-                // Once you pop, the Action you were looking at is gone.
-                std::cout << "(undo not yet implemented — TODO Friday in main.cpp)\n";
+                // check if we're empty?
+                if (hero.undoStack.empty()) {
+                    std::cout << "Nothing to undo.\n";
+                }
+                else {
+                    // bind a const refereence to our top action
+                    const UndoAction& a = hero.undoStack.top();
+                    // now that I have it, I can read everything I need from it
+                    hero.inventory = a.inventorySnapshot;
+                    std::cout << "Undid: " << a.description << "\n";
+                    // add this to the event log
+                    hero.eventLog.push_front("undo (" + a.description + ")");
+                    // pop it!
+                }
             }
             else if (cmd == "lint") {
                 if (rest.empty()) {
