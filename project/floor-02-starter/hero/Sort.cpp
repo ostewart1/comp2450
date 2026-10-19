@@ -109,10 +109,18 @@ namespace dungeon {
     void quicksortImpl(std::vector<Item>& v,
         std::size_t low, std::size_t high,
         const Comparator& cmp) {
-        if (high - low < 2) return;
+
+        if (low >= high) return;
+
         std::size_t p = partition(v, low, high, cmp);
-        if (p > low) quicksortImpl(v, low, p - 1, cmp);
-        quicksortImpl(v, p + 1, high, cmp);
+
+        if (p > low) {
+            quicksortImpl(v, low, p - 1, cmp);
+        }
+
+        if (p < high) {
+            quicksortImpl(v, p + 1, high, cmp);
+        }
     }
 
     Comparator makeComparator(const std::string& key, bool descending) {
