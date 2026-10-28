@@ -131,8 +131,11 @@ private:
     //     else if (n->data < value) n->right = insertInto(n->right, value);
     //     return n;
     static Node* insertInto(Node* n, const T& value) {
-        (void)value;
-        return n;   // TODO Monday — stub leaves the tree unchanged
+        if (n == nullptr) return new Node(value); // empty spot, where our new value goes
+        if (value < n->data) n->left = insertInto(n->left, value);
+        // larger: go right, save what comes back in->right
+        else if (n->data < value) n->right = insertInto(n->right, value);
+        return n; // either way, hand this node to the caller
     }
 
     // Search for `value`. Unlike Floor 8's findFrom, you do NOT ask every
@@ -145,8 +148,14 @@ private:
     //     if (n->data < value) return findFrom(n->right, value);
     //     return n;   // equal => found
     static const Node* findFrom(const Node* n, const T& value) {
-        (void)n; (void)value;
-        return nullptr;   // TODO Monday
+        // ran off the bottom: it's not in the tree
+        if (n == nullptr) return nullptr;
+        // smaller: it has to be on the left
+        if (value < n->data) return findFrom(n->left, value);
+        // larger: it has to be on the right
+        if (n->data < value) return findFrom(n->right, value);
+        // not smaller, not larger, it's equal!!
+        return n;
     }
 
     // ----- Wednesday -------------------------------------------------
@@ -162,8 +171,10 @@ private:
     //     out.push_back(n->data);
     //     inOrderInto(n->right, out);
     static void inOrderInto(const Node* n, std::vector<T>& out) {
-        (void)n; (void)out;
-        // TODO Wednesday
+        if (n == nullptr) return; // nothing here: so onthing to add
+        inOrderInto(n->left, out);
+        out.push_back(n->data);
+        inOrderInto(n->right, out);
     }
 
     // Free the whole subtree. This is the Floor 8 Tree destructor with
