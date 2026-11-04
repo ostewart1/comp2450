@@ -187,22 +187,20 @@ private:
     //     destroy(n->right);
     //     delete n;
     static void destroy(Node* n) {
-        (void)n;
-        // TODO Wednesday — until written, the BST leaks its nodes
+        if (n == nullptr) return;
+        destroy(n->left);
+        destroy(n->right);
+        delete n;
     }
 
     // Deep-copy the whole subtree. Mirrors destroy(): make this node, then
     // copy each side beneath it. Returns the new subtree (or nullptr).
-    //
-    // TODO Floor 9 (Wednesday). Sketch:
-    //     if (n == nullptr) return nullptr;
-    //     Node* copy = new Node(n->data);
-    //     copy->left  = clone(n->left);
-    //     copy->right = clone(n->right);
-    //     return copy;
     static Node* clone(const Node* n) {
-        (void)n;
-        return nullptr;   // TODO Wednesday — stub copies to an empty tree
+        if (n == nullptr) return nullptr;
+        Node* copy = new Node(n->data);
+        copy->left = clone(n->left);
+        copy->right = clone(n->right);
+        return copy; 
     }
 
     // ----- Friday ----------------------------------------------------
