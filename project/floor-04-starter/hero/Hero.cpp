@@ -68,11 +68,11 @@ void printLog(const Hero& hero, std::size_t n) {
     std::size_t printed = 0;
     for (const auto* p = hero.eventLog.head();
         p != nullptr && (n == 0 || printed < n);
-        p = p->next, ++printed) { 
-		// (*p).next == p->next
+        p = p->next, ++printed) {
+        // (*p).next == p->next
         std::cout << " " << std::setw(2) << std::right << (printed + 1) << ".  " << p->data << "\n";
+        std::cout << "Newest first; chain length " << hero.eventLog.size() << "\n";
     }
-	std::cout << " (newest first; chain length " << hero.eventLog.size() << ")\n";
 }
 
 }  // namespace dungeon

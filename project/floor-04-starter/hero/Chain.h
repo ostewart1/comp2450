@@ -119,8 +119,8 @@ public:
     //
     // TODO Floor 4 (Friday) — change `= default` to `= delete` on both.
     // -----------------------------------------------------------------
-    Chain(const Chain&)            = default;   // TODO Friday: = delete
-    Chain& operator=(const Chain&) = default;   // TODO Friday: = delete
+    Chain(const Chain&)            = delete;   // TODO Friday: = delete
+    Chain& operator=(const Chain&) = delete;   // TODO Friday: = delete
 
     // -----------------------------------------------------------------
     // Inspection
@@ -129,7 +129,7 @@ public:
     // TODO Floor 4 (Monday) — return the cached size_.
     // We cache size so size() is O(1). Walking the chain to count would
     // be O(n) on every call; the log is queried by `log <n>` constantly.
-    std::size_t size() const  { return 0; /* TODO Monday */ }
+    std::size_t size() const { return size_; }
     bool        empty() const { return size() == 0; }
 
     // Raw head pointer. Callers walk the chain by hand:
@@ -138,7 +138,7 @@ public:
     // this week.
     //
     // TODO Floor 4 (Monday) — return head_.
-    const Node* head() const { return head_ };
+    const Node* head() const { return head_; }
     Node* head() { return head_; }
 
     // -----------------------------------------------------------------
@@ -152,7 +152,7 @@ public:
     //     Node* n = new Node(value, head_);
     //     head_   = n;
     //     ++size_;
-    void push_front(const T& /*value*/) {
+    void push_front(const T& value) {
         // splicing
         Node* n = new Node(value, head_);
         // the chain's head points points at our new node
@@ -167,7 +167,7 @@ public:
     void clear() {
         Node* p = head_; // start at the head
         while (p != nullptr) {
-            Note* n = p->next;
+            Node* n = p->next;
             delete p;
             p = n;
         }
