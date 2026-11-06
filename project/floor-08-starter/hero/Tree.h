@@ -47,6 +47,7 @@
 #include <cstddef>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 
 #include "Bag.h"
@@ -206,16 +207,20 @@ namespace dungeon {
         // TODO Floor 8 (Friday): write findFrom(root_, value) below.
         std::vector<T> lineage(const T& value) const {
             std::vector<T> path;
-            const Node* n = findFrom(root_, value); // Walk down: find the node!
-            if (n == nullptr) return path;          // not found → empty path
+            std::size_t visits = 0;
+            const Node* n = findFrom(root_, value, visits);
 
+            std::cout << "Nodes checked: " << visits << "\n";
 
-            // Walk up: follow the parent pointers (set by addChild()) until we
-            // pass the root (parent == nullptr)
-            for (const Node* p = n; p != nullptr; p = p->parent) path.push_back(p->data);
-            std::reverse(path.begin(), path.end());  // collected leaf→root; flip it
+            if (n == nullptr) return path;
+
+            for (const Node* p = n; p != nullptr; p = p->parent)
+                path.push_back(p->data);
+
+            std::reverse(path.begin(), path.end());
             return path;
         }
+
 
 
     private:
@@ -260,7 +265,7 @@ namespace dungeon {
         //     return total;
         static std::size_t countFrom(const Node* n) {
             if (n == nullptr) return 0;
-        std:; size_t total = 1;
+            std::size_t total = 1;
             for (std::size_t i = 0; i < n->children.size(); ++i) {
                 total += countFrom(n->children[i]);
             }
@@ -297,7 +302,7 @@ namespace dungeon {
         //     for (std::size_t i = 0; i < n->children.size(); ++i)
         //         preOrderInto(n->children[i], out);
         static void preOrderInto(const Node* n, std::vector<T>& out) {
-            if (n == nullptr) return; // base case: empty subtree
+            if (n == nullptr) return;
             out.push_back(n->data);
             for (std::size_t i = 0; i < n->children.size(); ++i) {
                 preOrderInto(n->children[i], out);
@@ -315,13 +320,16 @@ namespace dungeon {
         //     for (std::size_t i = 0; i < n->children.size(); ++i)
         //         if (const Node* hit = findFrom(n->children[i], value)) return hit;
         //     return nullptr;
-        static const Node* findFrom(const Node* n, const T& value) {
-            if (n == nullptr) return nullptr; // base case: empty subtree
-            if (n->data == value) return n; // act on the node: is it this one?
+        static const Node* findFrom(const Node* n, const T& value, std::size_t& visits) {
+            if (n == nullptr) return nullptr;
+            ++visits;
+            if (n->data == value) return n;
+
             for (std::size_t i = 0; i < n->children.size(); i++) {
-                if (const Node* hit = findFrom(n->children[i], value)) return hit;
+                if (const Node* hit = findFrom(n->children[i], value, visits))
+                    return hit;
             }
-            return nullptr; // checked myself + every subtree and couldn't find it.
+            return nullptr;
         }
     };
 
